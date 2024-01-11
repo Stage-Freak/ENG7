@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "300489688903",
+    "project_id": "notify-13c2e",
+    "storage_bucket": "notify-13c2e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:300489688903:android:aa3d4b27fa041cd157ae62",
+        "android_client_info": {
+          "package_name": "com.thekaviji.notify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDyiXQo_BJQ2e3RIr-zV4MMjiDO7xcIi0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
