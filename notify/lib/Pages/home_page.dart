@@ -304,6 +304,7 @@ class _HomePageState extends State<HomePage> {
             },
             buttonText: "Schedule",
           ),
+          const SizedBox(height: 20,),
           PrimaryButton(
               onTap: () {
                 Navigator.push(
