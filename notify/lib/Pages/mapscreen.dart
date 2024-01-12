@@ -233,7 +233,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 550.0),
+            padding: const EdgeInsets.only(top: 590.0),
             child: Expanded(
               child: Container(
                 decoration: const BoxDecoration(
