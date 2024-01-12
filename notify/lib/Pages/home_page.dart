@@ -133,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                             DateTime now = DateTime.now();
 
                             Duration remainingDuration = scheduledDate.difference(now);
-                            Duration remainingTimeDuration = now.difference(scheduledTime);
+                            Duration remainingTimeDuration = now.difference(scheduledTime); // Corrected line
 
                             int remainingDay = remainingDuration.inDays;
                             int remainingHour = remainingTimeDuration.inHours.remainder(24);
@@ -142,6 +142,8 @@ class _HomePageState extends State<HomePage> {
                             print('Current DateTime: $now');
                             print('Remaining Days: $remainingDay');
                             print('Remaining Hours: $remainingHour');
+
+
 
                             return Expanded(
                               child: ListView(
@@ -178,11 +180,11 @@ class _HomePageState extends State<HomePage> {
                                         const SizedBox(
                                           height: 20,
                                         ),
-                                        Align(
+                                        const Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text(
                                             'Remaining time for pickup:',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
                                               fontFamily: 'Judson',
@@ -332,10 +334,7 @@ class _HomePageState extends State<HomePage> {
 
                 // Notifications
                 List<String> allTokens = [
-                  'cPTtS_1zTxKIoCwyxA_Cv6:APA91bEBvLK7lkAMoXR3_TXBaqIMmXPM2J8h2HnCQy2aig2xHSqstd4Wq8F288PaOH3r86V3PElKDFeQShZDU-Tt5CEhhv0gvfoYYD6LWC0KYhx2-5acof1USZah8FRZgdOWE8-m4V03',//pixel6pro
-                  'fCN-9gBHSCurUdH0mubBnm:APA91bF6tQXyiH0-qj6xig1yOILKyWhtXJGh5W-wlvHS6EstMhnFWrcPlqCej8Iyalz36owJYOu2lkl6vgWoat74vbUSla2N7CO0GrvwpnUoLMq-ucLi5YF2bwOLq2jQMbps917uIFnS',//pixel6
-                  'dcfpeF4QQiy89hQu2Qkgef:APA91bG4DyxnDHQSbi1tNB-qiDyoa2il6EAJoaI__cO8fuvt51F1MZQBRbacXEXnUzlQ4USFB_Vj7S5DLB_eCkcfA-mXncCJpkDvq',//manoj
-
+                  'dcfpeF4QQiy89hQu2Qkgef:APA91bG4DyxnDHQSbi1tNB-qiDyoa2il6EAJoaI__cO8fuvt51F1MZQBRbacXEXnUzlQ4USFB_Vj7S5DLB_eCkcfA-mXncCJpkDvq',
                 ];
                 notificationServices.getDeviceToken().then((value) async {
                   for (String token in allTokens) {
@@ -369,7 +368,7 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => CurrentLocationMapPage()));
+                    MaterialPageRoute(builder: (context) => const CurrentLocationMapPage()));
               }, buttonText: 'Start Pickup Service',)
           ],
         ),
