@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CurrentLocationMapPage extends StatefulWidget {
   const CurrentLocationMapPage({Key? key}) : super(key: key);
-
   @override
   _CurrentLocationMapPageState createState() => _CurrentLocationMapPageState();
 }
@@ -74,9 +74,11 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
       desiredAccuracy: LocationAccuracy.high,
     );
     setState(() {
+      print('Set state called');
       _currentLocation = LatLng(position.latitude, position.longitude);
       _addMarker(_currentLocation!);
       _mapController.move(_currentLocation!, 17);
+      _sendLocationToFirestore(_currentLocation!); // Send location to Firestore
     });
   }
 
@@ -85,12 +87,30 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
       Marker(
         point: location,
         child: const Image(
-        image: AssetImage('assets/images/garbage-truck.png'),
-        height: 80,
-        width: 80,
+          image: AssetImage('assets/images/garbage-truck.png'),
+          height: 80,
+          width: 80,
         ),
       ),
     );
+  }
+
+  void _sendLocationToFirestore(LatLng location) async {
+    print('Send location function called');
+    try {
+      // Replace 'Collector' with your actual collection name
+      CollectionReference collRef = FirebaseFirestore.instance.collection('locationDatabase');
+      await collRef.add({
+        'pickupDateTime': Timestamp.fromDate(DateTime.now()),
+        'additionalData': {
+          'Latitude': location.latitude,
+          'Longitude': location.longitude,
+        },
+      });
+      print('Location and additional data added to Firestore: $location');
+    } catch (e) {
+      print('Error adding location to Firestore: $e');
+    }
   }
 
   @override
