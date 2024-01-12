@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                             DateTime scheduledTime = DateFormat('HH:mm').parse(timeStr);
                             DateTime now = DateTime.now();
 
-                            Duration remainingDuration = now.difference(scheduledDate);
+                            Duration remainingDuration = scheduledDate.difference(now);
                             Duration remainingTimeDuration = now.difference(scheduledTime);
 
                             int remainingDay = remainingDuration.inDays;
