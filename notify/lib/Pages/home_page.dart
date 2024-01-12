@@ -154,6 +154,20 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ),
                                         ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Remaining time for pickup: ${additionalData['Time']}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              fontFamily: 'Judson',
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
