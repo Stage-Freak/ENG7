@@ -1,19 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async'; // Import for timers
 
 class CurrentLocationMapPage extends StatefulWidget {
   const CurrentLocationMapPage({Key? key}) : super(key: key);
+
   @override
   _CurrentLocationMapPageState createState() => _CurrentLocationMapPageState();
 }
 
 class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
-  final MapController _mapController = MapController();
+  MapController _mapController = MapController();
   LatLng? _currentLocation;
+  LatLng? _previousLocation; // Track previous location
   List<Marker> _markers = [];
+  late Timer _locationUpdateTimer;
+  final double _significantDistanceThreshold = 10; // Adjust as needed
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation(); // Initial location retrieval
+    _locationUpdateTimer =
+        Timer.periodic(const Duration(minutes: 1), (timer) async {
+          await _getCurrentLocation();
+        });
+  }
+
+  @override
+  void dispose() {
+    _locationUpdateTimer.cancel();
+    _mapController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +53,14 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
         centerTitle: true,
         backgroundColor: const Color(0xFF98C28C),
       ),
-      body: FutureBuilder(
+      body: FutureBuilder<void>(
         future: _getCurrentLocation(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return _buildMap();
           } else {
             return Center(
-              child: CircularProgressIndicator(),
-            );
+                child: CircularProgressIndicator()); // Show loading indicator
           }
         },
       ),
@@ -70,16 +92,38 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
   }
 
   Future<void> _getCurrentLocation() async {
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      LatLng newLocation = LatLng(position.latitude, position.longitude);
+
+      // Only update if location has changed significantly
+      if (_previousLocation == null ||
+          _hasMovedSignificantly(_previousLocation!, newLocation)) {
+        setState(() {
+          _currentLocation = newLocation;
+          _addMarker(_currentLocation!);
+          Future.microtask(() => _mapController.move(_currentLocation!, 17));
+        });
+        _sendLocationToFirestore(_currentLocation!);
+        _previousLocation = newLocation; // Update previous location
+      }
+    } catch (error) {
+      // Handle the error
+    }
+  }
+
+  bool _hasMovedSignificantly(LatLng oldPosition, LatLng newPosition) {
+    // Calculate distance between positions and compare to threshold
+    final distanceInMeters = Geolocator.distanceBetween(
+      oldPosition.latitude,
+      oldPosition.longitude,
+      newPosition.latitude,
+      newPosition.longitude,
     );
-    setState(() {
-      print('Set state called');
-      _currentLocation = LatLng(position.latitude, position.longitude);
-      _addMarker(_currentLocation!);
-      _mapController.move(_currentLocation!, 17);
-      _sendLocationToFirestore(_currentLocation!); // Send location to Firestore
-    });
+    return distanceInMeters >= _significantDistanceThreshold;
   }
 
   void _addMarker(LatLng location) {
@@ -99,7 +143,8 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
     print('Send location function called');
     try {
       // Replace 'Collector' with your actual collection name
-      CollectionReference collRef = FirebaseFirestore.instance.collection('locationDatabase');
+      CollectionReference collRef =
+      FirebaseFirestore.instance.collection('locationDatabase');
       await collRef.add({
         'pickupDateTime': Timestamp.fromDate(DateTime.now()),
         'additionalData': {
@@ -111,12 +156,5 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
     } catch (e) {
       print('Error adding location to Firestore: $e');
     }
-  }
-
-
-  @override
-  void dispose() {
-    _mapController.dispose();
-    super.dispose();
   }
 }
