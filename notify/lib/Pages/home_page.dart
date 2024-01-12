@@ -23,11 +23,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    notificationServices.requestNotificationPermission();
-    notificationServices.firebaseInit();
-    notificationServices.getDeviceToken().then((value) {
-      print('Device token: $value');
-    });
+    // notificationServices.requestNotificationPermission();
+    // notificationServices.firebaseInit();
+    // notificationServices.getDeviceToken().then((value) {
+    //   print('Device token: $value');
+    // });
     dateInput.text =
         DateFormat('yyyy-MM-dd').format(DateTime.now()); // Initial date
     timeInput.text = DateFormat('HH:mm').format(DateTime.now()); // Initial time
@@ -338,12 +338,13 @@ class _HomePageState extends State<HomePage> {
                 // Notifications
                 List<String> tokens =  [
                   'dbcjdbcdsjcbjsdbcjbdsjcbjdbcjbfvconcdsncbidbckdsnckdscjbjsbdjvbjdbcjdbvjbdjvcbjbvjbcjbdjcvbjbvjbvjfdbvjbdvjbfjdvbjbvjdbvjdjvbjfdvbjdbvj',
-                  'dcfpeF4QQiy89hQu2Qkgef:APA91bG4DyxnDHQSbi1tNB-qiDyoa2il6EAJoaI__cO8fuvt51F1MZQBRbacXEXnUzlQ4USFB_Vj7S5DLB_eCkcfA-mXncCJpkDvq',
                   'cPTtS_1zTxKIoCwyxA_Cv6:APA91bEBvLK7lkAMoXR3_TXBaqIMmXPM2J8h2HnCQy2aig2xHSqstd4Wq8F288PaOH3r86V3PElKDFeQShZDU-Tt5CEhhv0gvfoYYD6LWC0KYhx2-5acof1USZah8FRZgdOWE8-m4V03',
-                  'fCN-9gBHSCurUdH0mubBnm:APA91bF6tQXyiH0-qj6xig1yOILKyWhtXJGh5W-wlvHS6EstMhnFWrcPlqCej8Iyalz36owJYOu2lkl6vgWoat74vbUSla2N7CO0GrvwpnUoLMq-ucLi5YF2bwOLq2jQMbps917uIFnS'
-                ];
+                  'fCN-9gBHSCurUdH0mubBnm:APA91bF6tQXyiH0-qj6xig1yOILKyWhtXJGh5W-wlvHS6EstMhnFWrcPlqCej8Iyalz36owJYOu2lkl6vgWoat74vbUSla2N7CO0GrvwpnUoLMq-ucLi5YF2bwOLq2jQMbps917uIFnS',
+                  'fvJXr7ViSyaYs0JPTsXxxd:APA91bEbun0aZqbBPsqZwsXNoo0pTDGlNg9_z7M3HPAQKzPL2d1Wcp2WHMcjmp-Q2ZVUHFyQv-177yyz9VQ3sWPqTeopsBOZroMwOb5glT1jFcDH1TmcnIPJ60JZeG-yhphkmk7-B0oU'
+              ];
 
                 await Future.forEach(tokens, (String token) async {
+                  print(token);
                   var data = {
                     'to': token,
                     'priority': 'high',
