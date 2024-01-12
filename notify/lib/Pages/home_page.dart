@@ -3,12 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notify/Pages/primary_button.dart';
-import 'package:notify/notificationServices.dart';
 import 'package:http/http.dart' as http;
 import 'CurrentLocationMapPage.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key});
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -18,16 +17,10 @@ final TextEditingController dateInput = TextEditingController();
 final TextEditingController timeInput = TextEditingController();
 
 class _HomePageState extends State<HomePage> {
-  NotificationServices notificationServices = NotificationServices();
 
   @override
   void initState() {
     super.initState();
-    // notificationServices.requestNotificationPermission();
-    // notificationServices.firebaseInit();
-    // notificationServices.getDeviceToken().then((value) {
-    //   print('Device token: $value');
-    // });
     dateInput.text =
         DateFormat('yyyy-MM-dd').format(DateTime.now()); // Initial date
     timeInput.text = DateFormat('HH:mm').format(DateTime.now()); // Initial time
@@ -352,6 +345,9 @@ class _HomePageState extends State<HomePage> {
                       'title': 'Pickup Scheduled',
                       'body':
                       'Garbage pickup scheduled for ${formatDateForNotification(dateInput.text)} at ${timeInput.text}',
+                    },
+                    'data': {
+                      'type' : 'schedule'
                     }
                   };
 

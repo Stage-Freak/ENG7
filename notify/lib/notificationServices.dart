@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:notify/Pages/mapscreen.dart';
+import 'package:notify/Pages/thrower_home_page.dart';
 
 class NotificationServices {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -82,11 +83,11 @@ class NotificationServices {
   }
 
   void handleMessage(BuildContext context, RemoteMessage message) {
-    if (message.data['type'] == 'msg') {
+    if (message.data['type'] == 'schedule') {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => MapScreen()));
+              builder: (context) => ThrowerHomePage()));
     }
   }
 }
