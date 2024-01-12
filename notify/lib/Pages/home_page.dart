@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:notify/Pages/CurrentLocationMapPage.dart';
 import 'package:notify/Pages/primary_button.dart';
 import 'package:notify/notificationServices.dart';
 import 'package:http/http.dart' as http;
@@ -9,7 +10,6 @@ import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -257,6 +257,12 @@ class _HomePageState extends State<HomePage> {
             },
             buttonText: "Schedule",
           ),
+          PrimaryButton(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CurrentLocationMapPage()));
+              }, buttonText: 'Continue with location')
         ],
       ),
     );

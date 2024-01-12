@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:notify/Pages/primary_button.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'TrackingPage.dart';
 
 class MapScreen extends StatefulWidget {
   @override
@@ -77,13 +79,12 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  void _onMapTapped(LatLng tappedPoint) {
+  void _onMapTapped(LatLng tappedPoint) async {
     setState(() {
       _selectedLocation = tappedPoint;
-      _placeName = _placeName;
+      _placeName = null; // Reset placeName when a new location is selected
       _markers.clear();
-
-      // Add a marker for the current location using FlutterMap's Marker class
+      // Add a marker for the selected location using FlutterMap's Marker class
       _markers.add(
         Marker(
           point: _selectedLocation!,
@@ -98,6 +99,14 @@ class _MapScreenState extends State<MapScreen> {
           ),
         ),
       );
+    });
+
+    // Get the place name for the selected location
+    await _getPlaceName(
+        _selectedLocation!.latitude, _selectedLocation!.longitude);
+    // Update the UI with the fetched place name
+    setState(() {
+      // Now _placeName has been updated, and the UI will be rebuilt
     });
   }
 
@@ -180,44 +189,101 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      appBar: AppBar(
+        title: const Text(
+          "Pickup location",
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 26,
+            fontFamily: 'Judson',
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF98C28C),
+      ),
+      body: Stack(
         children: [
-          Container(
-            height: 0.75 * MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
+          SizedBox(
+            height: MediaQuery
+                .of(context)
+                .size
+                .height,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,
             child: _buildMap(),
           ),
-          Expanded(
-            child: Container(
-              color: const Color(0xff98c28c),
-              width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.only(top:8),
-              child: Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: _useCurrentLocation,
-                    child: Text('Use Current Location'),
-                    style: ButtonStyle(
-                      minimumSize: MaterialStateProperty.all(Size(150, 40)),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text("Or choose location from the map above"),
-                  SizedBox(height: 10),
-                  _placeName != null
-                      ? Text("Selected Location: $_placeName")
-                      : Container(),
-                  ElevatedButton(
-                    onPressed: (){
-                      // Navigator.push(context,
-                      //     MaterialPageRoute(builder: (context) =>Tracking()));
-                    },
-                    child: Text('Continue with location'),
-                    style: ButtonStyle(
-                      minimumSize: MaterialStateProperty.all(Size(150, 40)),
-                    ),
-                  ),
-                ],
+          Padding(
+            padding: const EdgeInsets.only(top: 500.0, left: 340),
+            child: FloatingActionButton(
+              onPressed: _useCurrentLocation,
+              backgroundColor: Colors.grey[400],
+              child: Tooltip(
+                message: 'Current Location',
+                child: Icon(
+                  Icons.location_on,
+                  color: Colors.green,
+                  size: 40,
+                ),
+              ),
+              shape: CircleBorder(
+                side: BorderSide(color: Colors.lightBlueAccent, width: 2.0),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 550.0),
+            child: Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15)),
+                  color: Colors.white70,
+                ),
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                height: 200,
+                padding: const EdgeInsets.only(top: 8),
+                child: Column(
+                  children: [
+                    //PrimaryButton(onTap:  _useCurrentLocation, buttonText: 'Use Current Location'),
+                    const SizedBox(height: 10),
+                    const Text("Use Current Location ",
+                        style: TextStyle(fontFamily: 'Judson', fontSize: 16,
+                            fontWeight: FontWeight.bold)),
+                    const Text("Or tap in preferred location for new location",
+                        style: TextStyle(fontFamily: 'Judson',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold)),
+                    _placeName != null
+                        ? Padding(
+                      padding: const EdgeInsets.only(
+                          left: 20.0, right: 20, top: 10, bottom: 15),
+                      child: Text(
+                        "Selected Location: $_placeName",
+                        style: const TextStyle(
+                            fontFamily: 'Judson',
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue),
+                      ),
+                    )
+                        : Container(),
+                    PrimaryButton(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TrackingPage(selectedLocation: _selectedLocation!),
+                            ),
+                          );
+                        }, buttonText: 'Continue with location')
+                  ],
+                ),
               ),
             ),
           ),
