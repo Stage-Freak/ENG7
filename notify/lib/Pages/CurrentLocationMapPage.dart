@@ -19,7 +19,16 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Current Location Map'),
+        title: const Text(
+          "Current Location Map",
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 26,
+            fontFamily: 'Judson',
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF98C28C),
       ),
       body: FutureBuilder(
         future: _getCurrentLocation(),
@@ -77,8 +86,8 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
         point: location,
         child: const Image(
         image: AssetImage('assets/images/garbage-truck.png'),
-        height: 60,
-        width: 60,
+        height: 80,
+        width: 80,
         ),
       ),
     );
