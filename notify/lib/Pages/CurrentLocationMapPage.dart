@@ -75,16 +75,10 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
     _markers.add(
       Marker(
         point: location,
-        child: Column(
-          children: [
-            Expanded(
-              child: Icon(
-                Icons.location_pin,
-                size: 40.0,
-                color: Colors.red,
-              ),
-            ),
-          ],
+        child: const Image(
+        image: AssetImage('assets/images/garbage-truck.png'),
+        height: 60,
+        width: 60,
         ),
       ),
     );

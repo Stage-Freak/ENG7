@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notify/Pages/CurrentLocationMapPage.dart';
 import 'package:notify/Pages/primary_button.dart';
 import 'package:notify/notificationServices.dart';
 import 'package:http/http.dart' as http;
-
+import 'CurrentLocationMapPage.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({super.key});
+  const HomePage({Key? key});
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Schedule Pickup",
+          "Home",
           style: TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 26,
@@ -81,50 +81,99 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    height: 10,
+                  StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: FirebaseFirestore.instance
+                        .collection('Collector')
+                        .orderBy('pickupDateTime', descending: true)
+                        .limit(1)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator(); // Show loading indicator
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData ||
+                          snapshot.data?.docs.isEmpty == true) {
+                        return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 50.0),
+                              child: Column(
+                                children: [
+                                  Image(
+                                    image: AssetImage('assets/images/Schedule.png'),
+                                    width: 100,
+                                    height: 100,
+                                  ),
+                                  Text(
+                                    'No Pickup Scheduled currently.',
+                                    style: TextStyle(
+                                        fontFamily: 'Judson',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20),
+                                  ),
+                                ],
+                              ),
+                            ));
+                      } else {
+                        final collector = snapshot.data!.docs.first;
+                        var pickupDateTime = collector.data()['pickupDateTime'];
+                        final additionalData =
+                        collector.data()['additionalData'];
+
+                        if (pickupDateTime is Timestamp) {
+                          return Expanded(
+                            child: ListView(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          'Date: ${additionalData['Date']}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 18,
+                                            fontFamily: 'Judson',
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          'Time: ${additionalData['Time']}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 18,
+                                            fontFamily: 'Judson',
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return const Center(
+                              child:  Text('No pickup scheduled currently!', style: const TextStyle(
+                                fontFamily: 'Judson',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              )));
+                        }
+                      }
+                    },
                   ),
-                  const Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Date:',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 18,
-                                  fontFamily: 'Judson',
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Time: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 18,
-                                  fontFamily: 'Judson',
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
                 ],
               ),
             ),
           ),
-
           // Schedule next pickup
           Padding(
             padding: const EdgeInsets.all(20.0),
@@ -174,7 +223,7 @@ class _HomePageState extends State<HomePage> {
 
                         if (pickedDate != null) {
                           String formattedDate =
-                              DateFormat('yyyy-MM-dd').format(pickedDate);
+                          DateFormat('yyyy-MM-dd').format(pickedDate);
                           setState(() {
                             dateInput.text = formattedDate;
                           });
@@ -221,26 +270,24 @@ class _HomePageState extends State<HomePage> {
           PrimaryButton(
             onTap: () {
               CollectionReference collRef =
-                  FirebaseFirestore.instance.collection('Collector');
+              FirebaseFirestore.instance.collection('Collector');
               collRef.add({
-                'pickupDateTime': {
+                'pickupDateTime': Timestamp.fromDate(DateTime.now()),
+                'additionalData': {
                   'Date': dateInput.text.toString(),
                   'Time': timeInput.text.toString(),
                 },
               });
 
-              //Notifications
+              // Notifications
               notificationServices.getDeviceToken().then((value) async {
                 var data = {
                   'to': value.toString(),
-                  //'to': 'fCN-9gBHSCurUdH0mubBnm:APA91bF6tQXyiH0-qj6xig1yOILKyWhtXJGh5W-wlvHS6EstMhnFWrcPlqCej8Iyalz36owJYOu2lkl6vgWoat74vbUSla2N7CO0GrvwpnUoLMq-ucLi5YF2bwOLq2jQMbps917uIFnS',
                   'priority': 'high',
                   'notification': {
                     'title': 'Pickup Scheduled',
-                    'body': 'Garbage pickup scheduled for ' +
-                        formatDateForNotification(dateInput.text) +
-                        ' at ' +
-                        timeInput.text,
+                    'body':
+                    'Garbage pickup scheduled for ${formatDateForNotification(dateInput.text)} at ${timeInput.text}',
                   }
                 };
 
@@ -250,7 +297,7 @@ class _HomePageState extends State<HomePage> {
                   headers: {
                     'Content-Type': 'application/json; charset=utf-8',
                     'Authorization':
-                        'key=AAAARfaUx0c:APA91bHgHAhID9O6SitasqynYPSqZEW_LUPiOcDDBKs7yA7CfrEYnC45flZ_YxjwNOQPyzJkuYswEtjRpCGTHYEEd9pEB7IO0lCQ4c-WUB0dDKqI5NQc5VUKsGV27FTa9UHtsYu64mjb'
+                    'key=AAAARfaUx0c:APA91bHgHAhID9O6SitasqynYPSqZEW_LUPiOcDDBKs7yA7CfrEYnC45flZ_YxjwNOQPyzJkuYswEtjRpCGTHYEEd9pEB7IO0lCQ4c-WUB0dDKqI5NQc5VUKsGV27FTa9UHtsYu64mjb'
                   },
                 );
               });

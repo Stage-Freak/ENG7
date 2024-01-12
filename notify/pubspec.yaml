@@ -77,7 +77,9 @@ flutter:
     - assets/images/bell.png
     - assets/images/truck.png
     - assets/images/rodeway.png
+    - assets/images/Schedule.png
     - assets/images/questions.png
+    - assets/images/garbage-truck.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

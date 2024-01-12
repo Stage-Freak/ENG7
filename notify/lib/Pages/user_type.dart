@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:notify/Pages/home_page.dart';
-import 'package:notify/Pages/mapscreen.dart';
 import 'package:notify/Pages/primary_button.dart';
+import 'package:notify/Pages/thrower_home_page.dart';
 
 class UserType extends StatelessWidget {
   const UserType({super.key});
@@ -33,7 +33,7 @@ class UserType extends StatelessWidget {
               PrimaryButton(buttonText: 'Thrower', onTap: () {
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MapScreen()));
+                    MaterialPageRoute(builder: (context) => ThrowerHomePage()));
               }),
             ],
           ),
