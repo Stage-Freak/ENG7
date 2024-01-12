@@ -28,7 +28,16 @@ class _TrackingPageState extends State<TrackingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tracking Page'),
+        title: const Text(
+          "Tracking Page",
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 26,
+            fontFamily: 'Judson',
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF98C28C),
       ),
       body: Stack(
         children: [
