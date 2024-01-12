@@ -113,6 +113,7 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
     }
   }
 
+
   @override
   void dispose() {
     _mapController.dispose();
