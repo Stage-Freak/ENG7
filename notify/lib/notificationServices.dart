@@ -81,13 +81,6 @@ class NotificationServices {
     return token!;
   }
 
-  void isTokenRefresh() {
-    messaging.onTokenRefresh.listen((event) {
-      event.toString();
-      print('refresh token');
-    });
-  }
-
   void handleMessage(BuildContext context, RemoteMessage message) {
     if (message.data['type'] == 'msg') {
       Navigator.push(

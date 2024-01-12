@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:notify/Pages/onbording1.dart';
 import 'package:notify/Pages/splash_screen.dart';
+import 'package:notify/notificationServices.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,11 +30,16 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  NotificationServices notificationServices = NotificationServices();
 
   @override
   void initState() {
     super.initState();
-
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit();
+    notificationServices.getDeviceToken().then((value) {
+      print('Device token: $value');
+    });
     // Add a delay of 2500 milliseconds (2.5 seconds) before navigating to the next screen
     Future.delayed(const Duration(milliseconds: 2500), () {
       _navigatorKey.currentState?.pushReplacement(
