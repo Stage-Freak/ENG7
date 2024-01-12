@@ -321,7 +321,9 @@ class _HomePageState extends State<HomePage> {
             ),
 
             PrimaryButton(
-              onTap: () {
+              onTap: () async {
+
+
                 CollectionReference collRef =
                 FirebaseFirestore.instance.collection('Collector');
                 collRef.add({
@@ -332,37 +334,40 @@ class _HomePageState extends State<HomePage> {
                   },
                 });
 
+
                 // Notifications
-                List<String> allTokens = [
+                List<String> tokens =  [
                   'dcfpeF4QQiy89hQu2Qkgef:APA91bG4DyxnDHQSbi1tNB-qiDyoa2il6EAJoaI__cO8fuvt51F1MZQBRbacXEXnUzlQ4USFB_Vj7S5DLB_eCkcfA-mXncCJpkDvq',
+                  'cPTtS_1zTxKIoCwyxA_Cv6:APA91bEBvLK7lkAMoXR3_TXBaqIMmXPM2J8h2HnCQy2aig2xHSqstd4Wq8F288PaOH3r86V3PElKDFeQShZDU-Tt5CEhhv0gvfoYYD6LWC0KYhx2-5acof1USZah8FRZgdOWE8-m4V03',
+                  'fCN-9gBHSCurUdH0mubBnm:APA91bF6tQXyiH0-qj6xig1yOILKyWhtXJGh5W-wlvHS6EstMhnFWrcPlqCej8Iyalz36owJYOu2lkl6vgWoat74vbUSla2N7CO0GrvwpnUoLMq-ucLi5YF2bwOLq2jQMbps917uIFnS'
                 ];
-                notificationServices.getDeviceToken().then((value) async {
-                  for (String token in allTokens) {
-                    var data = {
-                      'to': token,
-                      'priority': 'high',
-                      'notification': {
-                        'title': 'Pickup Scheduled',
-                        'body':
-                        'Garbage pickup scheduled for ${formatDateForNotification(dateInput.text)} at ${timeInput.text}',
-                      }
-                    };
 
+                await Future.forEach(tokens, (String token) async {
+                  var data = {
+                    'to': token,
+                    'priority': 'high',
+                    'notification': {
+                      'title': 'Pickup Scheduled',
+                      'body':
+                      'Garbage pickup scheduled for ${formatDateForNotification(dateInput.text)} at ${timeInput.text}',
+                    }
+                  };
 
-                    await http.post(
-                      Uri.parse('https://fcm.googleapis.com/fcm/send'),
-                      body: jsonEncode(data),
-                      headers: {
-                        'Content-Type': 'application/json; charset=utf-8',
-                        'Authorization':
-                        'key=AAAARfaUx0c:APA91bHgHAhID9O6SitasqynYPSqZEW_LUPiOcDDBKs7yA7CfrEYnC45flZ_YxjwNOQPyzJkuYswEtjRpCGTHYEEd9pEB7IO0lCQ4c-WUB0dDKqI5NQc5VUKsGV27FTa9UHtsYu64mjb'
-                      },
-                    );
-                  };});
-
+                  await http.post(
+                    Uri.parse('https://fcm.googleapis.com/fcm/send'),
+                    body: jsonEncode(data),
+                    headers: {
+                      'Content-Type': 'application/json; charset=utf-8',
+                      'Authorization':
+                      'key=AAAARfaUx0c:APA91bHgHAhID9O6SitasqynYPSqZEW_LUPiOcDDBKs7yA7CfrEYnC45flZ_YxjwNOQPyzJkuYswEtjRpCGTHYEEd9pEB7IO0lCQ4c-WUB0dDKqI5NQc5VUKsGV27FTa9UHtsYu64mjb',
+                    },
+                  );
+                });
               },
               buttonText: "Schedule",
             ),
+
+
             const SizedBox(height: 30,),
             PrimaryButton(
               onTap: () {
