@@ -93,35 +93,56 @@ class _HomePageState extends State<HomePage> {
                           return const CircularProgressIndicator(); // Show loading indicator
                         } else if (snapshot.hasError) {
                           return Center(child: Text('Error: ${snapshot.error}'));
-                        } else if (!snapshot.hasData ||
-                            snapshot.data?.docs.isEmpty == true) {
+                        } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
                           return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.only(top: 50.0),
-                                child: Column(
-                                  children: [
-                                    Image(
-                                      image: AssetImage('assets/images/Schedule.png'),
-                                      width: 100,
-                                      height: 100,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 50.0),
+                              child: Column(
+                                children: [
+                                  Image(
+                                    image: AssetImage('assets/images/Schedule.png'),
+                                    width: 100,
+                                    height: 100,
+                                  ),
+                                  Text(
+                                    'No Pickup Scheduled currently.',
+                                    style: TextStyle(
+                                      fontFamily: 'Judson',
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
                                     ),
-                                    Text(
-                                      'No Pickup Scheduled currently.',
-                                      style: TextStyle(
-                                          fontFamily: 'Judson',
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20),
-                                    ),
-                                  ],
-                                ),
-                              ));
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
                         } else {
                           final collector = snapshot.data!.docs.first;
                           var pickupDateTime = collector.data()['pickupDateTime'];
-                          final additionalData =
-                          collector.data()['additionalData'];
-        
+                          final additionalData = collector.data()['additionalData'];
+
+                          print('pickupDateTime: $pickupDateTime');
+                          print('additionalData: $additionalData');
+
                           if (pickupDateTime is Timestamp) {
+                            String dateStr = additionalData['Date'];
+                            String timeStr = additionalData['Time'];
+
+                            DateTime scheduledDate = DateFormat('yyyy-MM-dd').parse(dateStr);
+                            DateTime scheduledTime = DateFormat('HH:mm').parse(timeStr);
+                            DateTime now = DateTime.now();
+
+                            Duration remainingDuration = now.difference(scheduledDate);
+                            Duration remainingTimeDuration = now.difference(scheduledTime);
+
+                            int remainingDay = remainingDuration.inDays;
+                            int remainingHour = remainingTimeDuration.inHours.remainder(24);
+
+                            print('Scheduled Date: $scheduledDate');
+                            print('Current DateTime: $now');
+                            print('Remaining Days: $remainingDay');
+                            print('Remaining Hours: $remainingHour');
+
                             return Expanded(
                               child: ListView(
                                 children: [
@@ -132,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                                         Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text(
-                                            'Scheduled Date: ${additionalData['Date']}',
+                                            'Scheduled Date: ${DateFormat('yyyy-MM-dd').format(scheduledDate)}',
                                             style: const TextStyle(
                                               fontWeight: FontWeight.w900,
                                               fontSize: 18,
@@ -146,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                                         Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text(
-                                            'Scheduled Time: ${additionalData['Time']}',
+                                            'Scheduled Time: ${DateFormat('HH:mm').format(scheduledTime)}',
                                             style: const TextStyle(
                                               fontWeight: FontWeight.w900,
                                               fontSize: 18,
@@ -160,7 +181,18 @@ class _HomePageState extends State<HomePage> {
                                         Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text(
-                                            'Remaining time for pickup: ${additionalData['Time']}',
+                                            'Remaining time for pickup:',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                              fontFamily: 'Judson',
+                                            ),
+                                          ),
+                                        ),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            '$remainingDay days and $remainingHour hours',
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
@@ -176,11 +208,15 @@ class _HomePageState extends State<HomePage> {
                             );
                           } else {
                             return const Center(
-                                child:  Text('No pickup scheduled currently!', style: const TextStyle(
+                              child: Text(
+                                'No pickup scheduled currently!',
+                                style: TextStyle(
                                   fontFamily: 'Judson',
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
-                                )));
+                                ),
+                              ),
+                            );
                           }
                         }
                       },
@@ -235,7 +271,7 @@ class _HomePageState extends State<HomePage> {
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
                           );
-        
+
                           if (pickedDate != null) {
                             String formattedDate =
                             DateFormat('yyyy-MM-dd').format(pickedDate);
@@ -261,7 +297,7 @@ class _HomePageState extends State<HomePage> {
                             context: context,
                             initialTime: TimeOfDay.now(),
                           );
-        
+
                           if (pickedTime != null) {
                             String formattedTime = pickedTime.format(context);
                             setState(() {
@@ -277,11 +313,11 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-        
+
             const SizedBox(
               height: 20,
             ),
-        
+
             PrimaryButton(
               onTap: () {
                 CollectionReference collRef =
@@ -293,7 +329,7 @@ class _HomePageState extends State<HomePage> {
                     'Time': timeInput.text.toString(),
                   },
                 });
-        
+
                 // Notifications
                 notificationServices.getDeviceToken().then((value) async {
                   var data = {
@@ -305,7 +341,7 @@ class _HomePageState extends State<HomePage> {
                       'Garbage pickup scheduled for ${formatDateForNotification(dateInput.text)} at ${timeInput.text}',
                     }
                   };
-        
+
                   await http.post(
                     Uri.parse('https://fcm.googleapis.com/fcm/send'),
                     body: jsonEncode(data),
@@ -321,11 +357,11 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 30,),
             PrimaryButton(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CurrentLocationMapPage()));
-                }, buttonText: 'Start Pickup Service',)
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CurrentLocationMapPage()));
+              }, buttonText: 'Start Pickup Service',)
           ],
         ),
       ),
