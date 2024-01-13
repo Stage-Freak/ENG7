@@ -20,6 +20,7 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
   late Timer _locationUpdateTimer;
   LatLng? _previousLocation;
   bool _notificationSent = false;
+  var diatanceFromUserLocation = 0.00;
   @override
   void initState() {
     super.initState();
@@ -138,6 +139,7 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
   void _calculateDistance(LatLng fetchedLocation) {
     final distanceInMeters =
     Distance().distance(_currentLocation!, fetchedLocation);
+    diatanceFromUserLocation =distanceInMeters;
     print('Distance: ${distanceInMeters.toStringAsFixed(2)} meters');
 
     if (distanceInMeters <= 500 && !_notificationSent) {
@@ -170,7 +172,7 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
   }
 
   void _sendNotification() async {
-
+    print('Notification Sent');
     List<String> tokens =  [
       'dbcjdbcdsjcbjsdbcjbdsjcbjdbcjbfvconcdsncbidbckdsnckdscjbjsbdjvbjdbcjdbvjbdjvcbjbvjbcjbdjcvbjbvjbvjfdbvjbdvjbfjdvbjbvjdbvjdjvbjfdvbjdbvj',
       'cPTtS_1zTxKIoCwyxA_Cv6:APA91bEBvLK7lkAMoXR3_TXBaqIMmXPM2J8h2HnCQy2aig2xHSqstd4Wq8F288PaOH3r86V3PElKDFeQShZDU-Tt5CEhhv0gvfoYYD6LWC0KYhx2-5acof1USZah8FRZgdOWE8-m4V03',
@@ -186,7 +188,7 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
         'notification': {
           'title': 'Pickup Truck is nearby you.',
           'body':
-          'Garbage pickup truck is 250 meters away from you.',
+          'Garbage pickup truck is $diatanceFromUserLocation meters away from you.',
         },
       };
 
@@ -222,4 +224,3 @@ void _sendLocationToFirestore(LatLng location) async {
     print('Error adding location to Firestore: $e');
   }
 }
-
