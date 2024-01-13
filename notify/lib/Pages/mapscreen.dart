@@ -234,7 +234,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 590.0),
+            padding: const EdgeInsets.only(top: 570.0),
             child: Expanded(
               child: Container(
                 decoration: const BoxDecoration(
@@ -271,6 +271,8 @@ class _MapScreenState extends State<MapScreen> {
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.blue),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     )
                         : Container(),
