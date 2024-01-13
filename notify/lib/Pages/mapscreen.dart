@@ -216,7 +216,7 @@ class _MapScreenState extends State<MapScreen> {
             child: _buildMap(),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 500.0, left: 340),
+            padding: const EdgeInsets.only(top: 480.0, left: 340),
             child: FloatingActionButton(
               onPressed: _useCurrentLocation,
               backgroundColor: Colors.grey[400],
@@ -234,7 +234,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 590.0),
+            padding: const EdgeInsets.only(top: 550.0),
             child: Expanded(
               child: Container(
                 decoration: const BoxDecoration(
