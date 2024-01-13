@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'TrackingPage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MapScreen extends StatefulWidget {
   @override
@@ -275,6 +276,17 @@ class _MapScreenState extends State<MapScreen> {
                         : Container(),
                     PrimaryButton(
                         onTap: () {
+                          CollectionReference collRef =
+                          FirebaseFirestore.instance.collection('CurrentLocationDatabase');
+                           collRef.add({
+                            'UploadTime': Timestamp.fromDate(DateTime.now()),
+                            'additionalData': {
+                              'SelectLatitude': _selectedLocation!.latitude,
+                              'SelectLongitude': _selectedLocation!.longitude,
+                            },
+                          });
+                          print('Location and additional data added to Firestore: $_selectedLocation');
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(

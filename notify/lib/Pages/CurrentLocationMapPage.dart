@@ -7,7 +7,6 @@ import 'dart:async'; // Import for timers
 
 class CurrentLocationMapPage extends StatefulWidget {
   const CurrentLocationMapPage({Key? key}) : super(key: key);
-
   @override
   _CurrentLocationMapPageState createState() => _CurrentLocationMapPageState();
 }
