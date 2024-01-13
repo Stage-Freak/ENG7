@@ -3,7 +3,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
 import 'dart:async'; // Import for timers
+import 'dart:convert';
 
 class CurrentLocationMapPage extends StatefulWidget {
   const CurrentLocationMapPage({Key? key}) : super(key: key);
@@ -168,7 +170,37 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
   }
 
   void _sendNotification() async {
-    print('Notification Sent');
+
+    List<String> tokens =  [
+      'dbcjdbcdsjcbjsdbcjbdsjcbjdbcjbfvconcdsncbidbckdsnckdscjbjsbdjvbjdbcjdbvjbdjvcbjbvjbcjbdjcvbjbvjbvjfdbvjbdvjbfjdvbjbvjdbvjdjvbjfdvbjdbvj',
+      'cPTtS_1zTxKIoCwyxA_Cv6:APA91bEBvLK7lkAMoXR3_TXBaqIMmXPM2J8h2HnCQy2aig2xHSqstd4Wq8F288PaOH3r86V3PElKDFeQShZDU-Tt5CEhhv0gvfoYYD6LWC0KYhx2-5acof1USZah8FRZgdOWE8-m4V03',
+      'fCN-9gBHSCurUdH0mubBnm:APA91bF6tQXyiH0-qj6xig1yOILKyWhtXJGh5W-wlvHS6EstMhnFWrcPlqCej8Iyalz36owJYOu2lkl6vgWoat74vbUSla2N7CO0GrvwpnUoLMq-ucLi5YF2bwOLq2jQMbps917uIFnS',
+      'fvJXr7ViSyaYs0JPTsXxxd:APA91bEbun0aZqbBPsqZwsXNoo0pTDGlNg9_z7M3HPAQKzPL2d1Wcp2WHMcjmp-Q2ZVUHFyQv-177yyz9VQ3sWPqTeopsBOZroMwOb5glT1jFcDH1TmcnIPJ60JZeG-yhphkmk7-B0oU'
+    ];
+
+    await Future.forEach(tokens, (String token) async {
+      print(token);
+      var data = {
+        'to': token,
+        'priority': 'high',
+        'notification': {
+          'title': 'Pickup Truck is nearby you.',
+          'body':
+          'Garbage pickup truck is 250 meters away from you.',
+        },
+      };
+
+      await http.post(
+        Uri.parse('https://fcm.googleapis.com/fcm/send'),
+        body: jsonEncode(data),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Authorization':
+          'key=AAAARfaUx0c:APA91bHgHAhID9O6SitasqynYPSqZEW_LUPiOcDDBKs7yA7CfrEYnC45flZ_YxjwNOQPyzJkuYswEtjRpCGTHYEEd9pEB7IO0lCQ4c-WUB0dDKqI5NQc5VUKsGV27FTa9UHtsYu64mjb',
+        },
+      );
+    });
+
   }
 }
 
