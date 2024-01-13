@@ -44,7 +44,7 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Current Location Map",
+          "Your Journey",
           style: TextStyle(
             fontWeight: FontWeight.w900,
             fontSize: 26,
@@ -115,6 +115,8 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
       // Fetch current location from Firestore (only once after location retrieval)
       FirebaseFirestore.instance
           .collection('CurrentLocationDatabase')
+          .orderBy('UploadTime', descending: true)
+          .limit(1)
           .get()
           .then((querySnapshot) {
         if (querySnapshot.docs.isNotEmpty) {
