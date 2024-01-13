@@ -6,7 +6,6 @@ class TrackingPage extends StatefulWidget {
   final LatLng selectedLocation;
   const TrackingPage({Key? key, required this.selectedLocation})
       : super(key: key);
-
   @override
   _TrackingPageState createState() => _TrackingPageState();
 }
