@@ -103,7 +103,7 @@ class NotificationServices {
           builder: (context) => ThrowerHomePage(),
         ),
       );
-      print('nevigated to thrower page ');
+      print(' To thrower page ');
     }
   }
 }

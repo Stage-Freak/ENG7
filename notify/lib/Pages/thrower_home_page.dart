@@ -110,7 +110,7 @@ class _ThrowerHomePagweState extends State<ThrowerHomePage> {
                           DateTime now = DateTime.now();
 
                           Duration remainingDuration = scheduledDate.difference(now);
-                          Duration remainingTimeDuration = scheduledTime.difference(now);
+                          Duration remainingTimeDuration = now.difference(scheduledTime);
 
                           int remainingDay = remainingDuration.inDays;
                           int remainingHour = remainingTimeDuration.inHours.remainder(24);
