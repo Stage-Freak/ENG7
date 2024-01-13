@@ -36,7 +36,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     notificationServices.requestNotificationPermission();
-    notificationServices.firebaseInit();
+    notificationServices.firebaseInit(context);
     notificationServices.getDeviceToken().then((value) {
       print('Device token: $value');
     });
