@@ -172,22 +172,22 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
   }
 }
 
-  void _sendLocationToFirestore(LatLng location) async {
-    print('Send location function called');
-    try {
-      // Replace 'Collector' with your actual collection name
-      CollectionReference collRef =
-      FirebaseFirestore.instance.collection('locationDatabase');
-      await collRef.add({
-        'pickupDateTime': Timestamp.fromDate(DateTime.now()),
-        'additionalData': {
-          'Latitude': location.latitude,
-          'Longitude': location.longitude,
-        },
-      });
-      print('Location and additional data added to Firestore: $location');
-    } catch (e) {
-      print('Error adding location to Firestore: $e');
-    }
+void _sendLocationToFirestore(LatLng location) async {
+  print('Send location function called');
+  try {
+    // Replace 'Collector' with your actual collection name
+    CollectionReference collRef =
+    FirebaseFirestore.instance.collection('locationDatabase');
+    await collRef.add({
+      'pickupDateTime': Timestamp.fromDate(DateTime.now()),
+      'additionalData': {
+        'Latitude': location.latitude,
+        'Longitude': location.longitude,
+      },
+    });
+    print('Location and additional data added to Firestore: $location');
+  } catch (e) {
+    print('Error adding location to Firestore: $e');
   }
+}
 
