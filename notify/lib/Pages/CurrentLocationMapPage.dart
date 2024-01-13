@@ -16,18 +16,18 @@ class CurrentLocationMapPage extends StatefulWidget {
 class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
   MapController _mapController = MapController();
   LatLng? _currentLocation;
-  LatLng? _previousLocation; // Track previous location
   List<Marker> _markers = [];
   late Timer _locationUpdateTimer;
-  final double _significantDistanceThreshold = 10; // Adjust as needed
+  LatLng? _previousLocation;
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation(); // Initial location retrieval
     _locationUpdateTimer =
-        Timer.periodic(const Duration(minutes: 1), (timer) async {
+        Timer.periodic(const Duration(seconds: 30), (timer) async {
           await _getCurrentLocation();
+          _sendLocationToFirestore(_currentLocation!);
         });
   }
 
@@ -99,31 +99,30 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
 
       LatLng newLocation = LatLng(position.latitude, position.longitude);
 
-      // Only update if location has changed significantly
       if (_previousLocation == null ||
-          _hasMovedSignificantly(_previousLocation!, newLocation)) {
+          _hasMovedSignificantly(newLocation, _previousLocation!)) {
         setState(() {
           _currentLocation = newLocation;
+          _markers.clear(); // Clear existing markers
           _addMarker(_currentLocation!);
           Future.microtask(() => _mapController.move(_currentLocation!, 17));
         });
         _sendLocationToFirestore(_currentLocation!);
-        _previousLocation = newLocation; // Update previous location
+        _previousLocation = newLocation;
       }
     } catch (error) {
       // Handle the error
     }
   }
 
-  bool _hasMovedSignificantly(LatLng oldPosition, LatLng newPosition) {
-    // Calculate distance between positions and compare to threshold
+  bool _hasMovedSignificantly(LatLng newLocation, LatLng oldLocation) {
     final distanceInMeters = Geolocator.distanceBetween(
-      oldPosition.latitude,
-      oldPosition.longitude,
-      newPosition.latitude,
-      newPosition.longitude,
+      newLocation.latitude,
+      newLocation.longitude,
+      oldLocation.latitude,
+      oldLocation.longitude,
     );
-    return distanceInMeters >= _significantDistanceThreshold;
+    return distanceInMeters >= 10; // Adjust the threshold as needed
   }
 
   void _addMarker(LatLng location) {

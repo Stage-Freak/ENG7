@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 class TrackingPage extends StatefulWidget {
   final LatLng selectedLocation;
   const TrackingPage({Key? key, required this.selectedLocation})
@@ -14,13 +14,16 @@ class TrackingPage extends StatefulWidget {
 class _TrackingPageState extends State<TrackingPage> {
   final MapController _mapController = MapController();
   List<Marker> _markers = [];
-
+  String? _fetchedLocationDocumentId;
+  double _distanceInMeters = 0;
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _moveMapToSelectedLocation(); // Call after the first frame is rendered
+      _moveMapToSelectedLocation();
+      _fetchLocationFromFirestore();
+      _fetchAndListenToFirestoreUpdates();
     });
   }
 
@@ -45,6 +48,15 @@ class _TrackingPageState extends State<TrackingPage> {
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             child: _buildMap(),
+          ),
+          Positioned(
+            // Adjust positioning as needed
+            bottom: 20,
+            right: 20,
+            child: Text(
+              'Distance: ${_distanceInMeters.toStringAsFixed(2)} meters',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
         ],
       ),
@@ -87,23 +99,113 @@ class _TrackingPageState extends State<TrackingPage> {
     }
   }
 
-  void _addMarker(LatLng location) {
-    _markers.add(
-      Marker(
+  void _addMarker(LatLng location, {bool isFetchedLocation = false}) {
+    if (!_markers.any((marker) => marker.point == location)) {
+      _markers.add(
+        Marker(
           point: location,
           child: Column(
             children: [
               Expanded(
-                // Wrap the Icon in Expanded
-                child: Icon(
-                  Icons.location_pin,
-                  size: 40.0,
-                  color: Colors.red,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: isFetchedLocation
+                          ? Image.asset(
+                              'assets/images/garbage-truck.png',
+                              width: 50,
+                              height: 50,
+                            )
+                          : Icon(Icons.location_pin,
+                              size: 40.0, color: Colors.red),
+                    ),
+                  ],
                 ),
               ),
             ],
-          )),
-    );
+          ),
+        ),
+      );
+      setState(() {});
+    }
+  }
+
+  Future<void> _fetchLocationFromFirestore() async {
+    try {
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection('locationDatabase').get();
+
+      final docs = querySnapshot.docs;
+      if (docs.isNotEmpty) {
+        final doc = docs.first; // Assuming there's only one document
+        final data = doc.data() as Map<String, dynamic>;
+        final latitude = data['additionalData']['Latitude'];
+        final longitude = data['additionalData']['Longitude'];
+        final fetchedLocation = LatLng(latitude, longitude);
+        _addMarker(fetchedLocation,
+            isFetchedLocation: true); // Add with specific style
+      } else {
+        print("No documents found in the collection");
+      }
+    } catch (error) {
+      print("Error fetching location: $error");
+    }
+  }
+  Future<void> _fetchAndListenToFirestoreUpdates() async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('locationDatabase')
+          .get();
+
+      final docs = querySnapshot.docs;
+      if (docs.isNotEmpty) {
+        final doc = docs.first; // Assuming there's only one document
+        _fetchedLocationDocumentId = doc.id; // Store the ID for listening
+
+        final data = doc.data() as Map<String, dynamic>;
+        final latitude = data['additionalData']['Latitude'];
+        final longitude = data['additionalData']['Longitude'];
+        final fetchedLocation = LatLng(latitude, longitude);
+        _addMarker(fetchedLocation, isFetchedLocation: true);
+        _calculateDistance();
+        _listenToFirestoreUpdates(); // Start listening for changes
+      } else {
+        print("No documents found in the collection");
+      }
+    } catch (error) {
+      print("Error fetching location: $error");
+    }
+  }
+
+  void _calculateDistance() {
+    if (_markers.length >= 2) {
+      final selectedLocation = _markers[0].point;
+      final fetchedLocation = _markers[1].point;
+      _distanceInMeters = Distance().distance(selectedLocation, fetchedLocation);
+      setState(() {}); // Update the UI
+    }
+  }
+
+  void _listenToFirestoreUpdates() {
+    FirebaseFirestore.instance
+        .collection('locationDatabase')
+        .doc(_fetchedLocationDocumentId) // Use the stored ID
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.exists) {
+        final data = snapshot.data() as Map<String, dynamic>;
+        final latitude = data['additionalData']['Latitude'];
+        final longitude = data['additionalData']['Longitude'];
+        final updatedLocation = LatLng(latitude, longitude);
+
+        // Remove any existing marker with the same coordinates
+        _markers.removeWhere((marker) => marker.point == updatedLocation);
+
+        _addMarker(updatedLocation, isFetchedLocation: true);
+      } else {
+        // Handle the case where the document no longer exists
+      }
+    });
   }
 
   @override
