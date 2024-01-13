@@ -74,7 +74,7 @@ class NotificationServices {
       importance: Importance.high,
       priority: Priority.high,
       ticker: 'ticker',
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/bell',
     ); // Removed the onTap parameter
 
     NotificationDetails notificationDetails = NotificationDetails(
