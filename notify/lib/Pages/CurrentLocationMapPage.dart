@@ -17,7 +17,7 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
   List<Marker> _markers = [];
   late Timer _locationUpdateTimer;
   LatLng? _previousLocation;
-
+  bool _notificationSent = false;
   @override
   void initState() {
     super.initState();
@@ -108,8 +108,39 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
         _sendLocationToFirestore(_currentLocation!);
         _previousLocation = newLocation;
       }
+
+      // Fetch current location from Firestore (only once after location retrieval)
+      FirebaseFirestore.instance
+          .collection('CurrentLocationDatabase')
+          .get()
+          .then((querySnapshot) {
+        if (querySnapshot.docs.isNotEmpty) {
+          final doc = querySnapshot.docs.first;
+          final latitude = doc['additionalData']['SelectLatitude'];
+          final longitude = doc['additionalData']['SelectLongitude'];
+          final fetchedLocation = LatLng(latitude, longitude);
+
+          // Calculate distance (only once)
+          _calculateDistance(fetchedLocation);
+        } else {
+          print("No current location data found in Firestore");
+        }
+      });
     } catch (error) {
       // Handle the error
+    }
+  }
+
+
+
+  void _calculateDistance(LatLng fetchedLocation) {
+    final distanceInMeters =
+    Distance().distance(_currentLocation!, fetchedLocation);
+    print('Distance: ${distanceInMeters.toStringAsFixed(2)} meters');
+
+    if (distanceInMeters <= 500 && !_notificationSent) {
+      _sendNotification();
+      _notificationSent = true; // Set the flag to true after sending the notification
     }
   }
 
@@ -136,6 +167,11 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
     );
   }
 
+  void _sendNotification() async {
+    print('Notification Sent');
+  }
+}
+
   void _sendLocationToFirestore(LatLng location) async {
     print('Send location function called');
     try {
@@ -154,4 +190,4 @@ class _CurrentLocationMapPageState extends State<CurrentLocationMapPage> {
       print('Error adding location to Firestore: $e');
     }
   }
-}
+
